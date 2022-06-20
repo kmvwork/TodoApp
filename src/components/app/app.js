@@ -10,9 +10,10 @@ export default class App extends Component {
     state = {
         taskData: [
             {description: 'Completed task', created: 'created 17 seconds ago', status: 'completed', id: nanoid()},
-            {description: 'Editing task', created: 'created 5 minutes ago', status: '', id: nanoid()},
-            {description: 'Active task', created: 'created 5 minutes ago', status: '', id: nanoid()},
-        ]
+            {description: 'Editing task', created: 'created 5 minutes ago', status: 'active', id: nanoid()},
+            {description: 'Active task', created: 'created 5 minutes ago', status: 'active', id: nanoid()},
+        ],
+        filter: 'all'
     }
 
     onToggleStatus = (id) => {
@@ -41,20 +42,70 @@ export default class App extends Component {
         })
     }
 
+    onAddItem = (e, description) => {
+        e.target.value = ''
+        const newItem = {
+            description,
+            created: '5min ago',
+            status: 'active',
+            id: nanoid()
+        }
+        this.setState(({taskData}) => {
+            const newArray = [...taskData, newItem]
+            return {
+                taskData: newArray
+            }
+        })
+    }
+
+    filterItems = (items, filter) => {
+        switch (filter) {
+            case 'active':
+                return items.filter(item => item.status === 'active')
+            case 'completed':
+                return items.filter(item => item.status === 'completed')
+            default:
+                return items
+        }
+    }
+
+    onFilterSelect = (filter) => {
+        this.setState(({filter}))
+    }
+
+    onClearCompleted = () => {
+        this.setState(({taskData}) => {
+            const newArray =  taskData.filter(item => item.status !== 'completed')
+            return {
+                taskData: newArray
+            }
+        })
+    }
+
+
     render() {
+        const {taskData, filter} = this.state
+        const itemsLeft = taskData.filter(item => item.status !== 'completed').length
+        const visibleData = this.filterItems(taskData, filter)
+
         return (
             <section className="todoapp">
                 <header className="header">
                     <h1>todos</h1>
-                    <NewTaskForm/>
+                    <NewTaskForm onAddItem={this.onAddItem}/>
                 </header>
                 <section className="main">
                     <TaskList
-                        taskData={this.state.taskData}
+                        taskData={visibleData}
                         onToggleStatus={this.onToggleStatus}
                         onDeleteItem={this.onDeleteItem}
                     />
-                    <Footer/>
+                    <Footer
+                        itemsLeft={itemsLeft}
+                        filter={filter}
+                        onFilterSelect={this.onFilterSelect}
+                        onClearCompleted={this.onClearCompleted}
+                    />
                 </section>
             </section>
         )
