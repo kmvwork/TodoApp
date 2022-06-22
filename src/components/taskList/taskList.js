@@ -1,6 +1,6 @@
 import Task from "../task";
 
-const TaskList = ({taskData, onToggleStatus, onDeleteItem}) => {
+const TaskList = ({taskData, onToggleStatus, onDeleteItem, onEditingItem, onChangeItem, onKeyPressHandler}) => {
     const elements = taskData.map(item => {
         const {status, id, ...itemProps} = item
         let classNames = ''
@@ -20,7 +20,11 @@ const TaskList = ({taskData, onToggleStatus, onDeleteItem}) => {
                     taskData={itemProps}
                     onToggleStatus={() => onToggleStatus(id)}
                     onDeleteItem = {() => onDeleteItem(id)}
+                    onEditingItem={() => onEditingItem(id)}
+                    onChangeItem={onChangeItem}
+                    onKeyPressHandler={onKeyPressHandler}
                     done = {done}
+                    id={id}
                 />
             </li>
         )

@@ -75,11 +75,59 @@ export default class App extends Component {
 
     onClearCompleted = () => {
         this.setState(({taskData}) => {
-            const newArray =  taskData.filter(item => item.status !== 'completed')
+            const newArray = taskData.filter(item => item.status !== 'completed')
             return {
                 taskData: newArray
             }
         })
+    }
+
+    onEditingItem = (id) => {
+        this.setState(({taskData}) => {
+            return {
+                taskData: taskData.map((item) => {
+                    if (item.id === id) {
+                        item.status = 'editing'
+                        return item
+                    } else {
+                        return item
+                    }
+                })
+            }
+        })
+    }
+
+    onChangeItem = (id, event) => {
+        const value = event.target.value
+        this.setState(({taskData}) => {
+            return {
+                taskData: taskData.map((item) => {
+                    if (item.id === id) {
+                        item.description = value
+                        return item
+                    } else {
+                        return item
+                    }
+                })
+            }
+        })
+    }
+
+    onKeyPressHandler = (id, event) => {
+        if (event.code === 'Enter') {
+            this.setState(({taskData}) => {
+                return {
+                    taskData: taskData.map((item) => {
+                        if (item.id === id) {
+                            item.status = 'active'
+                            return item
+                        } else {
+                            return item
+                        }
+                    })
+                }
+            })
+        }
     }
 
 
@@ -99,6 +147,9 @@ export default class App extends Component {
                         taskData={visibleData}
                         onToggleStatus={this.onToggleStatus}
                         onDeleteItem={this.onDeleteItem}
+                        onEditingItem={this.onEditingItem}
+                        onChangeItem={this.onChangeItem}
+                        onKeyPressHandler={this.onKeyPressHandler}
                     />
                     <Footer
                         itemsLeft={itemsLeft}
