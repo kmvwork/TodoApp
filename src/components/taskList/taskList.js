@@ -1,4 +1,5 @@
 import Task from "../task";
+import PropTypes from "prop-types";
 
 const TaskList = ({taskData, onToggleStatus, onDeleteItem, onEditingItem, onChangeItem, onKeyPressHandler}) => {
     const elements = taskData.map(item => {
@@ -19,11 +20,11 @@ const TaskList = ({taskData, onToggleStatus, onDeleteItem, onEditingItem, onChan
                 <Task
                     taskData={itemProps}
                     onToggleStatus={() => onToggleStatus(id)}
-                    onDeleteItem = {() => onDeleteItem(id)}
+                    onDeleteItem={() => onDeleteItem(id)}
                     onEditingItem={() => onEditingItem(id)}
                     onChangeItem={onChangeItem}
                     onKeyPressHandler={onKeyPressHandler}
-                    done = {done}
+                    done={done}
                     id={id}
                 />
             </li>
@@ -35,3 +36,17 @@ const TaskList = ({taskData, onToggleStatus, onDeleteItem, onEditingItem, onChan
 }
 
 export default TaskList
+
+
+TaskList.defaultProps = {
+    taskData: []
+}
+
+TaskList.propTypes = {
+    taskData: PropTypes.arrayOf(PropTypes.object),
+    onToggleStatus: PropTypes.func,
+    onDeleteItem: PropTypes.func,
+    onEditingItem: PropTypes.func,
+    onChangeItem: PropTypes.func,
+    onKeyPressHandler: PropTypes.func,
+}

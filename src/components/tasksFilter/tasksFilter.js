@@ -1,4 +1,5 @@
 import {nanoid} from "nanoid";
+import PropTypes from "prop-types";
 
 const TasksFilter = ({filter, onFilterSelect}) => {
     const buttonsData = [
@@ -31,3 +32,13 @@ const TasksFilter = ({filter, onFilterSelect}) => {
 }
 
 export default TasksFilter
+
+
+TasksFilter.defaultProps = {
+    filter: 'all',
+}
+
+TasksFilter.propTypes = {
+    filter: PropTypes.string,
+    onFilterSelect: PropTypes.func,
+}

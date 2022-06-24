@@ -1,5 +1,6 @@
 import React, {Component} from "react";
 import {nanoid} from 'nanoid'
+import formatDistanceToNow from 'date-fns/formatDistanceToNow'
 
 import Footer from "../footer";
 import NewTaskForm from "../newTaskForm";
@@ -9,9 +10,9 @@ import TaskList from "../taskList";
 export default class App extends Component {
     state = {
         taskData: [
-            {description: 'Completed task', created: 'created 17 seconds ago', status: 'completed', id: nanoid()},
-            {description: 'Editing task', created: 'created 5 minutes ago', status: 'active', id: nanoid()},
-            {description: 'Active task', created: 'created 5 minutes ago', status: 'active', id: nanoid()},
+            {description: 'Completed task', status: 'completed', id: nanoid()},
+            {description: 'Editing task', status: 'active', id: nanoid()},
+            {description: 'Active task', status: 'active', id: nanoid()},
         ],
         filter: 'all'
     }
@@ -46,7 +47,7 @@ export default class App extends Component {
         e.target.value = ''
         const newItem = {
             description,
-            created: '5min ago',
+            created: this.showTimeCreated(),
             status: 'active',
             id: nanoid()
         }
@@ -130,6 +131,12 @@ export default class App extends Component {
         }
     }
 
+    showTimeCreated = () => {
+        return formatDistanceToNow(
+            new Date(),
+            {includeSeconds: true}
+        )
+    }
 
     render() {
         const {taskData, filter} = this.state
