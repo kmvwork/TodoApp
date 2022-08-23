@@ -1,41 +1,44 @@
-import { Component } from 'react';
-import formatDistanceToNow from 'date-fns/formatDistanceToNow';
-import PropTypes from 'prop-types';
-import { nanoid } from 'nanoid';
+import React from 'react'
+import { Component } from 'react'
+import formatDistanceToNow from 'date-fns/formatDistanceToNow'
+import PropTypes from 'prop-types'
+import { nanoid } from 'nanoid'
+import Timer from '../timer'
 
 export default class Task extends Component {
   state = {
     // eslint-disable-next-line react/no-unused-state
-    create: '',
-  };
+    create: ''
+  }
 
-  data = new Date();
+  data = new Date()
 
-  timerStart = false;
+
+  timerStart = false
 
   componentDidMount() {
     if (!this.timerStart) {
-      this.showTimeCreated();
-      this.timerStart = true;
-    } else {
-      this.timerID = setInterval(() => this.showTimeCreated(), 10000);
+      this.showTimeCreated()
+      this.timerStart = true
+      setInterval(() => this.showTimeCreated(), 10000)
     }
   }
 
   componentWillUnmount() {
-    clearInterval(this.timerID);
+    clearInterval(this.timerID)
   }
 
   showTimeCreated = () => {
     const result = formatDistanceToNow(new Date(this.data), {
       includeSeconds: true,
-      addSuffix: true,
-    });
+      addSuffix: true
+    })
     this.setState({
       // eslint-disable-next-line react/no-unused-state
-      create: result,
-    });
-  };
+      create: result
+    })
+  }
+
 
   render() {
     const {
@@ -47,60 +50,70 @@ export default class Task extends Component {
       onChangeItem,
       onKeyPressHandler,
       id,
-    } = this.props;
+      editTimerMean
+    } = this.props
 
-    const { description, create } = taskData;
+    const { description, minutes, seconds} = taskData
+    const { create } = this.state
 
     return (
       <>
-        <div className="view">
+        <div className='view'>
           <input
             id={id}
             onChange={onToggleStatus}
-            className="toggle"
-            type="checkbox"
+            className='toggle'
+            type='checkbox'
             defaultChecked={done}
           />
           <label htmlFor={id}>
-            <span className="description">{description}</span>
-            <span className="created">{`created ${create}`}</span>
+            <span className='title'>{description}</span>
+            <span className='description'>
+              <Timer
+                initialMins={minutes}
+                initialSecs={seconds}
+                editTimerMean={editTimerMean}
+                id={id}
+              />
+            </span>
+            <span className='created description'>{`created ${create}`}</span>
           </label>
           <button
-            aria-label="Edit"
-            type="button"
-            className="icon icon-edit"
+            aria-label='Edit'
+            type='button'
+            className='icon icon-edit'
             onClick={() => onEditingItem()}
           />
           <button
-            aria-label="Delete"
-            type="button"
-            className="icon icon-destroy"
+            aria-label='Delete'
+            type='button'
+            className='icon icon-destroy'
             onClick={onDeleteItem}
           />
         </div>
         <input
-          type="text"
-          className="edit"
+          type='text'
+          className='edit'
           value={description}
           onChange={(event) => onChangeItem(id, event)}
           onKeyDown={(event) => onKeyPressHandler(id, event)}
         />
       </>
-    );
+    )
   }
 }
 
 Task.defaultProps = {
   taskData: {},
   done: false,
-  id: nanoid(),
-};
+  id: nanoid()
+}
 
 Task.propTypes = {
   taskData: PropTypes.shape({
     description: PropTypes.string,
     status: PropTypes.string,
-    id: PropTypes.string,
+    id: PropTypes.string
   }),
   onToggleStatus: PropTypes.func,
   onDeleteItem: PropTypes.func,
@@ -108,5 +121,5 @@ Task.propTypes = {
   onChangeItem: PropTypes.func,
   onKeyPressHandler: PropTypes.func,
   done: PropTypes.bool,
-  id: PropTypes.string,
-};
+  id: PropTypes.string
+}

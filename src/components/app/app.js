@@ -9,13 +9,44 @@ import { ACTIONS } from '../../lib/filterStatus'
 
 export default class App extends Component {
   state = {
-    taskData: window.localStorage.getItem('todo') ? JSON.parse(window.localStorage.getItem('todo')) : []
-    ,
+    taskData: window.localStorage.getItem('todo') ? JSON.parse(window.localStorage.getItem('todo')) : [],
     filter: ACTIONS.ALL
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
     localStorage.setItem('todo', JSON.stringify(this.state.taskData))
+  }
+
+  editTimerMean = (min, sec, id, start) => {
+    const now = new Date()
+    this.setState(({ taskData }) => {
+      taskData.map((item) => {
+        if (item.id === id) {
+          if (window.localStorage.getItem(id)) {
+            item.minutes = min
+            item.seconds = sec
+            window.localStorage.setItem(id, JSON.stringify({
+              timestamp: now,
+              min: item.minutes,
+              sec: item.seconds,
+              start: start
+            }))
+          } else {
+            item.minutes = min
+            item.seconds = sec
+            window.localStorage.setItem(id, JSON.stringify({
+              timestamp: now,
+              min: item.minutes,
+              sec: item.seconds,
+              start: start
+            }))
+          }
+          return item
+        } else {
+          return item
+        }
+      })
+    })
   }
 
   onToggleStatus = (id) => {
@@ -24,7 +55,7 @@ export default class App extends Component {
       const old = taskData[idx]
       let newItem
       if (old.status === 'completed') {
-        newItem = { ...old, status: ' ' }
+        newItem = { ...old, status: ACTIONS.ACTIVE }
       } else {
         newItem = { ...old, status: ACTIONS.COMPLETED }
       }
@@ -44,13 +75,16 @@ export default class App extends Component {
     })
   }
 
-  onAddItem = (e, description) => {
-    e.target.value = ''
+  onAddItem = (states) => {
+    const { value, minutes, seconds } = states
     const newItem = {
-      description,
+      description: value,
       created: this.showTimeCreated(),
       status: ACTIONS.ACTIVE,
-      id: nanoid()
+      id: nanoid(),
+      minutes: minutes,
+      seconds: seconds,
+      start: false
     }
     this.setState(({ taskData }) => {
       const newArray = [...taskData, newItem]
@@ -146,6 +180,8 @@ export default class App extends Component {
             onEditingItem={this.onEditingItem}
             onChangeItem={this.onChangeItem}
             onKeyPressHandler={this.onKeyPressHandler}
+            onChangeTime={this.onChangeTime}
+            editTimerMean={this.editTimerMean}
           />
           <Footer
             itemsLeft={itemsLeft}

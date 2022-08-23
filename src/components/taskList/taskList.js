@@ -11,7 +11,9 @@ function TaskList({
                     onDeleteItem,
                     onEditingItem,
                     onChangeItem,
-                    onKeyPressHandler
+                    onKeyPressHandler,
+                    onChangeTime,
+                    editTimerMean
                   }) {
   const p = <p className='noItemText'>No item</p>
   const elements = taskData.map((item) => {
@@ -36,6 +38,8 @@ function TaskList({
           onEditingItem={() => onEditingItem(id)}
           onChangeItem={onChangeItem}
           onKeyPressHandler={onKeyPressHandler}
+          onChangeTime={onChangeTime}
+          editTimerMean={editTimerMean}
           done={done}
           id={id}
         />
