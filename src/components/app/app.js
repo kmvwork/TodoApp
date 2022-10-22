@@ -6,10 +6,11 @@ import Footer from '../footer'
 import NewTaskForm from '../newTaskForm'
 import TaskList from '../taskList'
 import { ACTIONS } from '../../lib/filterStatus'
+import { TASKSTATUS } from '../../lib/taskStatus'
 
 export default class App extends Component {
   state = {
-    taskData: window.localStorage.getItem('todo') ? JSON.parse(window.localStorage.getItem('todo')) : [],
+    taskData: localStorage.getItem('todo') ? JSON.parse(localStorage.getItem('todo')) : [],
     filter: ACTIONS.ALL
   }
 
@@ -50,20 +51,21 @@ export default class App extends Component {
   }
 
   onToggleStatus = (id) => {
-    this.setState(({ taskData }) => {
-      const idx = taskData.findIndex((elem) => elem.id === id)
-      const old = taskData[idx]
-      let newItem
-      if (old.status === 'completed') {
-        newItem = { ...old, status: ACTIONS.ACTIVE }
-      } else {
-        newItem = { ...old, status: ACTIONS.COMPLETED }
+    const newData = this.state.taskData.map(item => {
+      if (item.id === id) {
+        return {
+          ...item,
+          status:
+            item.status === TASKSTATUS.COMPLETED
+              ? TASKSTATUS.ACTIVE
+              : TASKSTATUS.COMPLETED
+        }
       }
+      return item
+    })
 
-      const newArray = [...taskData.slice(0, idx), newItem, ...taskData.slice(idx + 1)]
-      return {
-        taskData: newArray
-      }
+    this.setState({
+      taskData: newData
     })
   }
 
@@ -75,6 +77,22 @@ export default class App extends Component {
     })
   }
 
+  onSetTime = (id, end, min, sec, start) => {
+    const newData = this.state.taskData.map(item => {
+      if (item.id === id) {
+        return {
+          ...item,
+          minutes: min,
+          seconds: sec,
+          endDate: end,
+          start: start
+        }
+      }
+      return item
+    })
+    this.setState({ taskData: newData })
+  }
+
   onAddItem = (states) => {
     const { value, minutes, seconds } = states
     const newItem = {
@@ -84,7 +102,9 @@ export default class App extends Component {
       id: nanoid(),
       minutes: minutes,
       seconds: seconds,
-      start: false
+      start: false,
+      edit: false,
+      endDate: new Date()
     }
     this.setState(({ taskData }) => {
       const newArray = [...taskData, newItem]
@@ -94,7 +114,7 @@ export default class App extends Component {
     })
   }
 
-  // eslint-disable-next-line class-methods-use-this
+// eslint-disable-next-line class-methods-use-this
   filterItems = (items, filter) => {
     switch (filter) {
       case ACTIONS.ACTIVE:
@@ -112,7 +132,7 @@ export default class App extends Component {
 
   onClearCompleted = () => {
     this.setState(({ taskData }) => {
-      const newArray = taskData.filter((item) => item.status !== ACTIONS.COMPLETED)
+      const newArray = taskData.filter((item) => item.status !== TASKSTATUS.COMPLETED)
       return {
         taskData: newArray
       }
@@ -123,7 +143,7 @@ export default class App extends Component {
     this.setState(({ taskData }) => ({
       taskData: taskData.map((item) => {
         if (item.id === id) {
-          item.status = ACTIONS.EDITING
+          item.edit = true
           return item
         }
         return item
@@ -145,11 +165,11 @@ export default class App extends Component {
   }
 
   onKeyPressHandler = (id, event) => {
-    if (event.code === 'Enter') {
+    if (event.code === 'Enter' || event.code === 'Escape') {
       this.setState(({ taskData }) => ({
         taskData: taskData.map((item) => {
           if (item.id === id) {
-            item.status = ACTIONS.ACTIVE
+            item.edit = false
             return item
           }
           return item
@@ -158,12 +178,24 @@ export default class App extends Component {
     }
   }
 
-  // eslint-disable-next-line class-methods-use-this
+  onHandleClickOutside = (id) => {
+    this.setState(({ taskData }) => ({
+      taskData: taskData.map((item) => {
+        if (item.id === id) {
+          item.edit = false
+          return item
+        }
+        return item
+      })
+    }))
+  }
+
+// eslint-disable-next-line class-methods-use-this
   showTimeCreated = () => formatDistanceToNow(new Date(), { includeSeconds: true })
 
   render() {
     const { taskData, filter } = this.state
-    const itemsLeft = taskData.filter((item) => item.status !== ACTIONS.COMPLETED).length
+    const itemsLeft = taskData.filter((item) => item.status !== TASKSTATUS.COMPLETED).length
     const visibleData = this.filterItems(taskData, filter)
 
     return (
@@ -181,7 +213,8 @@ export default class App extends Component {
             onChangeItem={this.onChangeItem}
             onKeyPressHandler={this.onKeyPressHandler}
             onChangeTime={this.onChangeTime}
-            editTimerMean={this.editTimerMean}
+            onHandleClickOutside={this.onHandleClickOutside}
+            onSetTime={this.onSetTime}
           />
           <Footer
             itemsLeft={itemsLeft}

@@ -3,16 +3,15 @@ import { Component } from 'react'
 import formatDistanceToNow from 'date-fns/formatDistanceToNow'
 import PropTypes from 'prop-types'
 import { nanoid } from 'nanoid'
-import Timer from '../timer'
+import CountDownTimer from '../countDownTimer/countDownTimer'
+import EditTask from '../editTask'
 
 export default class Task extends Component {
   state = {
     // eslint-disable-next-line react/no-unused-state
     create: ''
   }
-
   data = new Date()
-
 
   timerStart = false
 
@@ -39,65 +38,79 @@ export default class Task extends Component {
     })
   }
 
-
   render() {
     const {
-      taskData,
+      itemProps,
       onToggleStatus,
       onDeleteItem,
-      done,
       onEditingItem,
       onChangeItem,
       onKeyPressHandler,
+      onHandleClickOutside,
+      onSetTime,
       id,
-      editTimerMean
+      status,
+      edit,
+      start,
+      endDate
+      // editTimerMean
     } = this.props
 
-    const { description, minutes, seconds} = taskData
+    const { description, minutes, seconds} = itemProps
     const { create } = this.state
+    const checked = status !== 'active'
 
     return (
       <>
-        <div className='view'>
-          <input
+        {edit ?
+          <EditTask
+            description={description}
+            onChangeItem={onChangeItem}
+            onKeyPressHandler={onKeyPressHandler}
+            onHandleClickOutside={onHandleClickOutside}
             id={id}
-            onChange={onToggleStatus}
-            className='toggle'
-            type='checkbox'
-            defaultChecked={done}
-          />
-          <label htmlFor={id}>
-            <span className='title'>{description}</span>
-            <span className='description'>
-              <Timer
-                initialMins={minutes}
-                initialSecs={seconds}
-                editTimerMean={editTimerMean}
-                id={id}
-              />
+          /> :
+          <div className='view'>
+            <input
+              className='toggle'
+              type='checkbox'
+              onChange={onToggleStatus}
+              defaultChecked={checked}
+            />
+            <label htmlFor={id}>
+              <span className='title'>{description}</span>
+              <span className='description'>
+              {/*<Timer*/}
+                {/*  initialMins={minutes}*/}
+                {/*  initialSecs={seconds}*/}
+                {/*  // editTimerMean={editTimerMean}*/}
+                {/*  id={id}*/}
+                {/*/>*/}
+                <CountDownTimer
+                  onSetTime={onSetTime}
+                  mins={minutes}
+                  secs={seconds}
+                  start={start}
+                  endDate={endDate}
+                  id={id}
+                />
             </span>
-            <span className='created description'>{`created ${create}`}</span>
-          </label>
-          <button
-            aria-label='Edit'
-            type='button'
-            className='icon icon-edit'
-            onClick={() => onEditingItem()}
-          />
-          <button
-            aria-label='Delete'
-            type='button'
-            className='icon icon-destroy'
-            onClick={onDeleteItem}
-          />
-        </div>
-        <input
-          type='text'
-          className='edit'
-          value={description}
-          onChange={(event) => onChangeItem(id, event)}
-          onKeyDown={(event) => onKeyPressHandler(id, event)}
-        />
+              <span className='created description'>{`created ${create}`}</span>
+            </label>
+            <button
+              aria-label='Edit'
+              type='button'
+              className='icon icon-edit'
+              onClick={onEditingItem}
+            />
+            <button
+              aria-label='Delete'
+              type='button'
+              className='icon icon-destroy'
+              onClick={onDeleteItem}
+            />
+          </div>
+        }
       </>
     )
   }
