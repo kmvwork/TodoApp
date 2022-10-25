@@ -1,7 +1,6 @@
 import PropTypes from 'prop-types'
 
 import Task from '../task'
-import { ACTIONS } from '../../lib/filterStatus'
 
 import './taskList.css'
 
@@ -11,33 +10,35 @@ function TaskList({
                     onDeleteItem,
                     onEditingItem,
                     onChangeItem,
-                    onKeyPressHandler
+                    onKeyPressHandler,
+                    onChangeTime,
+                    // editTimerMean,
+                    onHandleClickOutside,
+                    onSetTime
                   }) {
   const p = <p className='noItemText'>No item</p>
+
   const elements = taskData.map((item) => {
-    const { status, id, ...itemProps } = item
-    let classNames = ''
-    let done = false
-
-    if (status === ACTIONS.COMPLETED) {
-      classNames += ' completed'
-      done = true
-    }
-    if (status === ACTIONS.EDITING) {
-      classNames += ' editing'
-    }
-
+    const { status, id, edit, start, endDate, ...itemProps } = item
     return (
-      <li key={id} className={classNames}>
+
+      <li key={id} className={status}>
         <Task
-          taskData={itemProps}
+          itemProps={itemProps}
           onToggleStatus={() => onToggleStatus(id)}
           onDeleteItem={() => onDeleteItem(id)}
           onEditingItem={() => onEditingItem(id)}
           onChangeItem={onChangeItem}
           onKeyPressHandler={onKeyPressHandler}
-          done={done}
+          onChangeTime={onChangeTime}
+          // editTimerMean={editTimerMean}
+          onHandleClickOutside={onHandleClickOutside}
+          onSetTime={onSetTime}
+          endDate={endDate}
           id={id}
+          status={status}
+          edit={edit}
+          start={start}
         />
       </li>
     )
