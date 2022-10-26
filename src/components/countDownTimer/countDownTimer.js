@@ -58,8 +58,8 @@ class CountDownTimer extends Component {
   }
 
   startTimer = () => {
-    this.timerId = setInterval(() => {
       this.setState(() => ({ start: true }))
+    this.timerId = setInterval(() => {
       if (this.state.minutes == 0 && this.state.seconds == 0) {
         clearTimeout(this.timerId)
         this.setState(() => {
