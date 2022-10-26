@@ -41,6 +41,7 @@ class CountDownTimer extends Component {
         seconds: endS
       }))
       this.setLocalStorageValue(this.state)
+        console.log('mount')
       this.startTimer()
     }
   }
@@ -58,8 +59,11 @@ class CountDownTimer extends Component {
   }
 
   startTimer = () => {
+      this.setState(() => {
+          return  {start: true}
+      })
     this.timerId = setInterval(() => {
-      this.setState(() => ({ start: true }))
+        console.log('start')
       if (this.state.minutes == 0 && this.state.seconds == 0) {
         clearTimeout(this.timerId)
         this.setState(() => {

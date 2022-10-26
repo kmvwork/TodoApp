@@ -12,7 +12,6 @@ function TaskList({
                     onChangeItem,
                     onKeyPressHandler,
                     onChangeTime,
-                    // editTimerMean,
                     onHandleClickOutside,
                     onSetTime
                   }) {
@@ -31,7 +30,6 @@ function TaskList({
           onChangeItem={onChangeItem}
           onKeyPressHandler={onKeyPressHandler}
           onChangeTime={onChangeTime}
-          // editTimerMean={editTimerMean}
           onHandleClickOutside={onHandleClickOutside}
           onSetTime={onSetTime}
           endDate={endDate}
