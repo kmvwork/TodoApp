@@ -80,12 +80,6 @@ export default class Task extends Component {
             <label htmlFor={id}>
               <span className='title'>{description}</span>
               <span className='description'>
-              {/*<Timer*/}
-                {/*  initialMins={minutes}*/}
-                {/*  initialSecs={seconds}*/}
-                {/*  // editTimerMean={editTimerMean}*/}
-                {/*  id={id}*/}
-                {/*/>*/}
                 <CountDownTimer
                   onSetTime={onSetTime}
                   mins={minutes}

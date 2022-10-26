@@ -18,38 +18,6 @@ export default class App extends Component {
     localStorage.setItem('todo', JSON.stringify(this.state.taskData))
   }
 
-  editTimerMean = (min, sec, id, start) => {
-    const now = new Date()
-    this.setState(({ taskData }) => {
-      taskData.map((item) => {
-        if (item.id === id) {
-          if (window.localStorage.getItem(id)) {
-            item.minutes = min
-            item.seconds = sec
-            window.localStorage.setItem(id, JSON.stringify({
-              timestamp: now,
-              min: item.minutes,
-              sec: item.seconds,
-              start: start
-            }))
-          } else {
-            item.minutes = min
-            item.seconds = sec
-            window.localStorage.setItem(id, JSON.stringify({
-              timestamp: now,
-              min: item.minutes,
-              sec: item.seconds,
-              start: start
-            }))
-          }
-          return item
-        } else {
-          return item
-        }
-      })
-    })
-  }
-
   onToggleStatus = (id) => {
     const newData = this.state.taskData.map(item => {
       if (item.id === id) {
