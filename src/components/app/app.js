@@ -1,25 +1,26 @@
-import { Component } from 'react'
 import formatDistanceToNow from 'date-fns/formatDistanceToNow'
-import { nanoid } from 'nanoid'
+import {nanoid} from 'nanoid'
 
 import Footer from '../footer'
 import NewTaskForm from '../newTaskForm'
 import TaskList from '../taskList'
-import { ACTIONS } from '../../lib/filterStatus'
-import { TASKSTATUS } from '../../lib/taskStatus'
+import {ACTIONS} from '../../lib/filterStatus'
+import {TASKSTATUS} from '../../lib/taskStatus'
+import {useEffect, useState} from "react";
 
-export default class App extends Component {
-  state = {
-    taskData: localStorage.getItem('todo') ? JSON.parse(localStorage.getItem('todo')) : [],
-    filter: ACTIONS.ALL
-  }
+const App = () => {
+  const [taskData, setTaskData] = useState(() => {
+    return localStorage.getItem('todo') ? JSON.parse(localStorage.getItem('todo')) : []
+  })
 
-  componentDidUpdate(prevProps, prevState, snapshot) {
-    localStorage.setItem('todo', JSON.stringify(this.state.taskData))
-  }
+  const [filter, setFilter] = useState(ACTIONS.ALL)
 
-  onToggleStatus = (id) => {
-    const newData = this.state.taskData.map(item => {
+  useEffect(() => {
+    localStorage.setItem('todo', JSON.stringify(taskData))
+  }, [taskData])
+
+  const onToggleStatus = (id) => {
+    const newData = taskData.map(item => {
       if (item.id === id) {
         return {
           ...item,
@@ -31,22 +32,23 @@ export default class App extends Component {
       }
       return item
     })
-
-    this.setState({
-      taskData: newData
-    })
+    setTaskData(newData)
   }
 
-  onDeleteItem = (id) => {
-    this.setState(({ taskData }) => {
-      const idx = taskData.findIndex((el) => el.id === id)
-      const newArray = [...taskData.slice(0, idx), ...taskData.slice(idx + 1)]
-      return { taskData: newArray }
-    })
+  const onDeleteItem = (id) => {
+    const idx = taskData.findIndex((el) => el.id === id)
+    const newArray = [...taskData.slice(0, idx), ...taskData.slice(idx + 1)]
+    setTaskData(newArray)
   }
 
-  onSetTime = (id, end, min, sec, start) => {
-    const newData = this.state.taskData.map(item => {
+  const onSetTime = (id, end, min, sec, start) => {
+    let mean = {
+      minutes: min,
+      seconds: sec,
+      endDate: end,
+      start: start
+    }
+    const newData = taskData.map(item => {
       if (item.id === id) {
         return {
           ...item,
@@ -58,14 +60,15 @@ export default class App extends Component {
       }
       return item
     })
-    this.setState({ taskData: newData })
+    localStorage.setItem(id, JSON.stringify(mean))
+    setTaskData(newData)
   }
 
-  onAddItem = (states) => {
-    const { value, minutes, seconds } = states
+  const onAddItem = (states) => {
+    const {value, minutes, seconds} = states
     const newItem = {
       description: value,
-      created: this.showTimeCreated(),
+      created: showTimeCreated(),
       status: ACTIONS.ACTIVE,
       id: nanoid(),
       minutes: minutes,
@@ -74,16 +77,12 @@ export default class App extends Component {
       edit: false,
       endDate: new Date()
     }
-    this.setState(({ taskData }) => {
-      const newArray = [...taskData, newItem]
-      return {
-        taskData: newArray
-      }
-    })
+    const newArray = [...taskData, newItem]
+    setTaskData(newArray)
   }
 
 // eslint-disable-next-line class-methods-use-this
-  filterItems = (items, filter) => {
+  const filterItems = (items, filter) => {
     switch (filter) {
       case ACTIONS.ACTIVE:
         return items.filter((item) => item.status === ACTIONS.ACTIVE)
@@ -94,104 +93,94 @@ export default class App extends Component {
     }
   }
 
-  onFilterSelect = (filter) => {
-    this.setState({ filter })
+  const onFilterSelect = (filter) => {
+    setFilter(filter)
   }
 
-  onClearCompleted = () => {
-    this.setState(({ taskData }) => {
-      const newArray = taskData.filter((item) => item.status !== TASKSTATUS.COMPLETED)
-      return {
-        taskData: newArray
+  const onClearCompleted = () => {
+    const newArray = taskData.filter((item) => item.status !== TASKSTATUS.COMPLETED)
+    setTaskData(newArray)
+  }
+
+  const onEditingItem = (id) => {
+    let newArray = taskData.map((item) => {
+      if (item.id === id) {
+        item.edit = true
+        return item
       }
+      return item
     })
+    setTaskData(newArray)
   }
 
-  onEditingItem = (id) => {
-    this.setState(({ taskData }) => ({
-      taskData: taskData.map((item) => {
-        if (item.id === id) {
-          item.edit = true
-          return item
-        }
+  const onChangeItem = (id, event) => {
+    const {value} = event.target
+    let newArray = taskData.map((item) => {
+      if (item.id === id) {
+        item.description = value
         return item
-      })
-    }))
+      }
+      return item
+    })
+    setTaskData(newArray)
   }
 
-  onChangeItem = (id, event) => {
-    const { value } = event.target
-    this.setState(({ taskData }) => ({
-      taskData: taskData.map((item) => {
-        if (item.id === id) {
-          item.description = value
-          return item
-        }
-        return item
-      })
-    }))
-  }
-
-  onKeyPressHandler = (id, event) => {
+  const onKeyPressHandler = (id, event) => {
     if (event.code === 'Enter' || event.code === 'Escape') {
-      this.setState(({ taskData }) => ({
-        taskData: taskData.map((item) => {
-          if (item.id === id) {
-            item.edit = false
-            return item
-          }
-          return item
-        })
-      }))
-    }
-  }
-
-  onHandleClickOutside = (id) => {
-    this.setState(({ taskData }) => ({
-      taskData: taskData.map((item) => {
+      let newArray = taskData.map((item) => {
         if (item.id === id) {
           item.edit = false
           return item
         }
         return item
       })
-    }))
+      setTaskData(newArray)
+    }
+  }
+
+  const onHandleClickOutside = (id) => {
+    let newArray = taskData.map((item) => {
+      if (item.id === id) {
+        item.edit = false
+        return item
+      }
+      return item
+    })
+    setTaskData(newArray)
   }
 
 // eslint-disable-next-line class-methods-use-this
-  showTimeCreated = () => formatDistanceToNow(new Date(), { includeSeconds: true })
+  const showTimeCreated = () => formatDistanceToNow(new Date(), {includeSeconds: true})
 
-  render() {
-    const { taskData, filter } = this.state
-    const itemsLeft = taskData.filter((item) => item.status !== TASKSTATUS.COMPLETED).length
-    const visibleData = this.filterItems(taskData, filter)
+  const itemsLeft = taskData.filter((item) => item.status !== TASKSTATUS.COMPLETED).length
+  const visibleData = filterItems(taskData, filter)
 
-    return (
-      <section className='todoapp'>
-        <header className='header'>
-          <h1>todos</h1>
-          <NewTaskForm onAddItem={this.onAddItem} />
-        </header>
-        <section className='main'>
-          <TaskList
-            taskData={visibleData}
-            onToggleStatus={this.onToggleStatus}
-            onDeleteItem={this.onDeleteItem}
-            onEditingItem={this.onEditingItem}
-            onChangeItem={this.onChangeItem}
-            onKeyPressHandler={this.onKeyPressHandler}
-            onChangeTime={this.onChangeTime}
-            onHandleClickOutside={this.onHandleClickOutside}
-            onSetTime={this.onSetTime}
-          />
-          <Footer
-            itemsLeft={itemsLeft}
-            filter={filter}
-            onFilterSelect={this.onFilterSelect}
-            onClearCompleted={this.onClearCompleted}
-          />
-        </section>
+  return (
+    <section className='todoapp'>
+      <header className='header'>
+        <h1>todos</h1>
+        <NewTaskForm onAddItem={onAddItem}/>
+      </header>
+      <section className='main'>
+        <TaskList
+          taskData={visibleData}
+          onToggleStatus={onToggleStatus}
+          onDeleteItem={onDeleteItem}
+          onEditingItem={onEditingItem}
+          onChangeItem={onChangeItem}
+          onKeyPressHandler={onKeyPressHandler}
+          onHandleClickOutside={onHandleClickOutside}
+          onSetTime={onSetTime}
+        />
+        <Footer
+          itemsLeft={itemsLeft}
+          filter={filter}
+          onFilterSelect={onFilterSelect}
+          onClearCompleted={onClearCompleted}
+        />
       </section>
-    )
-  }
+    </section>
+  )
 }
+
+export default App

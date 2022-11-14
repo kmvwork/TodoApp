@@ -1,29 +1,36 @@
-import { Component } from 'react'
+import {useEffect, useState} from 'react'
 
-class CountDownTimer extends Component {
-  state = {
-    id: this.props.id,
-    minutes: this.props.mins,
-    seconds: this.props.secs,
-    start: this.props.start,
-    end: false,
-    startDate: new Date(),
-    endDate: new Date(this.props.endDate)
-  }
+const CountDownTimer = (props) => {
+  const [id, setId] = useState(() => {
+    return props.id
+  })
+  const [minutes, setMinutes] = useState(() => {
+    return props.mins
+  })
+  const [seconds, setSeconds] = useState(() => {
+    return props.secs
+  })
+  const [start, setStart] = useState(() => {
+    return props.start
+  })
+  const [end, setEnd] = useState(false)
+  const [startDate, setStartDate] = useState(() => {
+    return new Date()
+  })
+  const [endDate, setEndDate] = useState(() => {
+    return new Date(props.endDate)
+  })
 
-  componentDidMount() {
-    if (this.props.start && this.state.startDate !== this.state.endDate) {
-      let secondsSpend = Math.floor((new Date() - this.state.endDate) / 1000)
+  useEffect(() => {
+    if (start && startDate !== endDate) {
+      let secondsSpend = Math.floor((new Date() - endDate) / 1000)
       let minutesSpend = Math.floor(secondsSpend / 60) % 60
-
-      let m = this.state.minutes - minutesSpend
-      let s = this.state.seconds - secondsSpend
-
+      let m = minutes - minutesSpend
+      let s = seconds - secondsSpend
       let endS = 0
       if (m <= 0) {
         m = 0
       }
-
       if (s <= 0) {
         endS = 60 - Math.abs(s)
         if (m <= 0) {
@@ -35,110 +42,57 @@ class CountDownTimer extends Component {
       } else {
         endS = s
       }
-
-      this.setState(() => ({
-        minutes: m,
-        seconds: endS
-      }))
-      this.setLocalStorageValue(this.state)
-      this.startTimer()
+      setMinutes(m)
+      setSeconds(endS)
+      setStart(true)
     }
-  }
+  }, [])
 
-  componentWillUnmount() {
-    clearInterval(this.timerId)
-    this.setLocalStorageValue(this.state)
-  }
-
-  componentDidUpdate(prevProps, prevState, snapshot) {
-    if (prevState !== this.state) {
-      this.setLocalStorageValue(this.state)
-      this.props.onSetTime(this.props.id, new Date(), this.state.minutes, this.state.seconds, this.state.start)
-    }
-  }
-
-  startTimer = () => {
-      this.setState(() => ({ start: true }))
-    this.timerId = setInterval(() => {
-      if (this.state.minutes == 0 && this.state.seconds == 0) {
-        clearTimeout(this.timerId)
-        this.setState(() => {
-          return { end: true, start: false }
-        })
-
-      } else if (this.state.minutes == 0) {
-        this.setState(({ seconds }) => {
-          return {
-            minutes: 0,
-            seconds: seconds - 1
-          }
-        })
-      } else if (this.state.seconds == 0) {
-        this.setState(({ minutes }) => {
-          return {
-            minutes: minutes - 1,
-            seconds: 59
-          }
-        })
-      } else {
-        this.setState(({ seconds }) => {
-          return {
-            seconds: seconds - 1
-          }
-        })
-      }
-    }, 1000)
-  }
-
-  stopTimer = () => {
-    this.setState(() => {
-      return { start: false }
-    })
-    clearInterval(this.timerId)
-  }
-
-  setLocalStorageValue = (value) => {
-    localStorage.setItem((this.state.id).toString(), JSON.stringify(value))
-  }
-
-  getLocalStorage = (id) => {
-    return JSON.parse(localStorage.getItem(id))
-  }
-
-  getLocalStorageValue = (value) => {
-    return this.getLocalStorage(this.state.id)[value]
-  }
-
-  render() {
-    const { minutes, seconds, timeUp } = this.state
-
-    return (
-      <>
-        {
-          <>
-            <button
-              disabled={this.state.start}
-              className='icon icon-play'
-              onClick={() => this.startTimer()}
-            >
-            </button>
-            <button
-              disabled={!this.state.start}
-              className='icon icon-pause'
-              onClick={() => this.stopTimer()}
-            >
-            </button>
-            {
-              timeUp ?
-                <span>00:00</span>
-                :
-                <span>{`${minutes.toString().padStart(2, '0')} : ${seconds.toString().padStart(2, '0')} `}</span>
-            }
-          </>
+  useEffect(() => {
+    let interval = null
+    if (start) {
+      interval = setInterval(() => {
+        if (minutes == 0 && seconds == 0) {
+          setEnd(true)
+          setStart(false)
+        } else if (minutes == 0) {
+          setSeconds(seconds => seconds - 1)
+        } else if (seconds == 0) {
+          setMinutes(minutes => minutes - 1)
+          setSeconds(59)
+        } else {
+          setSeconds(seconds => seconds - 1)
         }
-      </>
-    )
-  }
-}
+      }, 1000)
+      props.onSetTime(id, new Date(), minutes, seconds, start)
+    }
+    return () => {
+      clearInterval(interval)
+    }
+  }, [start, minutes, seconds])
 
+  return (
+    <>
+      {
+        <>
+          <button
+            disabled={!!start}
+            className='icon icon-play'
+            onClick={() => setStart(true)}
+          >
+          </button>
+          <button
+            disabled={!start}
+            className='icon icon-pause'
+            onClick={() => setStart(false)}
+          >
+          </button>
+          {
+            <span>{`${minutes.toString().padStart(2, '0')} : ${seconds.toString().padStart(2, '0')} `}</span>
+          }
+        </>
+      }
+    </>
+  )
+}
 export default CountDownTimer

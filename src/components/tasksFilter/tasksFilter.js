@@ -1,14 +1,17 @@
-import { nanoid } from 'nanoid';
+import {nanoid} from 'nanoid';
 import PropTypes from 'prop-types';
+import {useState} from "react";
 
-function TasksFilter({ filter, onFilterSelect }) {
-  const buttonsData = [
-    { name: 'all', label: 'All' },
-    { name: 'active', label: 'Active' },
-    { name: 'completed', label: 'Completed' },
-  ];
+function TasksFilter({filter, onFilterSelect}) {
+  const [buttonsData, setButtonsData] = useState(
+    [
+      {name: 'all', label: 'All'},
+      {name: 'active', label: 'Active'},
+      {name: 'completed', label: 'Completed'},
+    ]
+  )
 
-  const buttons = buttonsData.map(({ name, label }) => {
+  const buttons = buttonsData.map(({name, label}) => {
     const active = filter === name;
     const classNames = active ? ' selected' : '';
 

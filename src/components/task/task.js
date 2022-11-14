@@ -1,85 +1,68 @@
-import React from 'react'
-import { Component } from 'react'
+import React, {useEffect, useState} from 'react'
 import formatDistanceToNow from 'date-fns/formatDistanceToNow'
 import PropTypes from 'prop-types'
-import { nanoid } from 'nanoid'
+import {nanoid} from 'nanoid'
 import CountDownTimer from '../countDownTimer/countDownTimer'
 import EditTask from '../editTask'
 
-export default class Task extends Component {
-  state = {
-    // eslint-disable-next-line react/no-unused-state
-    create: ''
-  }
-  data = new Date()
+const Task = ({
+                itemProps,
+                onToggleStatus,
+                onDeleteItem,
+                onEditingItem,
+                onChangeItem,
+                onKeyPressHandler,
+                onHandleClickOutside,
+                onSetTime,
+                id,
+                status,
+                edit,
+                start,
+                endDate
+              }) => {
+  const [create, setCreate] = useState('')
+  const [data, setData] = useState(new Date())
+  const [timerStart, setTimerStart] = useState(false)
 
-  timerStart = false
-
-  componentDidMount() {
-    if (!this.timerStart) {
-      this.showTimeCreated()
-      this.timerStart = true
-      setInterval(() => this.showTimeCreated(), 10000)
+  useEffect(() => {
+    if (!timerStart) {
+      showTimeCreated()
+      setTimerStart(true)
+      setInterval(() => showTimeCreated(), 10000)
     }
-  }
+  }, [])
 
-  componentWillUnmount() {
-    clearInterval(this.timerID)
-  }
-
-  showTimeCreated = () => {
-    const result = formatDistanceToNow(new Date(this.data), {
+  const showTimeCreated = () => {
+    const result = formatDistanceToNow(new Date(data), {
       includeSeconds: true,
       addSuffix: true
     })
-    this.setState({
-      // eslint-disable-next-line react/no-unused-state
-      create: result
-    })
+    setCreate(result)
   }
 
-  render() {
-    const {
-      itemProps,
-      onToggleStatus,
-      onDeleteItem,
-      onEditingItem,
-      onChangeItem,
-      onKeyPressHandler,
-      onHandleClickOutside,
-      onSetTime,
-      id,
-      status,
-      edit,
-      start,
-      endDate
-      // editTimerMean
-    } = this.props
+  const {description, minutes, seconds} = itemProps
+  const checked = status !== 'active'
 
-    const { description, minutes, seconds} = itemProps
-    const { create } = this.state
-    const checked = status !== 'active'
-
-    return (
-      <>
-        {edit ?
-          <EditTask
-            description={description}
-            onChangeItem={onChangeItem}
-            onKeyPressHandler={onKeyPressHandler}
-            onHandleClickOutside={onHandleClickOutside}
-            id={id}
-          /> :
-          <div className='view'>
-            <input
-              className='toggle'
-              type='checkbox'
-              onChange={onToggleStatus}
-              defaultChecked={checked}
-            />
-            <label htmlFor={id}>
-              <span className='title'>{description}</span>
-              <span className='description'>
+  return (
+    <>
+      {edit ?
+        <EditTask
+          description={description}
+          onChangeItem={onChangeItem}
+          onKeyPressHandler={onKeyPressHandler}
+          onHandleClickOutside={onHandleClickOutside}
+          id={id}
+        /> :
+        <div className='view'>
+          <input
+            className='toggle'
+            type='checkbox'
+            onChange={onToggleStatus}
+            defaultChecked={checked}
+          />
+          <label htmlFor={id}>
+            <span className='title'>{description}</span>
+            <span className='description'>
                 <CountDownTimer
                   onSetTime={onSetTime}
                   mins={minutes}
@@ -89,26 +72,27 @@ export default class Task extends Component {
                   id={id}
                 />
             </span>
-              <span className='created description'>{`created ${create}`}</span>
-            </label>
-            <button
-              aria-label='Edit'
-              type='button'
-              className='icon icon-edit'
-              onClick={onEditingItem}
-            />
-            <button
-              aria-label='Delete'
-              type='button'
-              className='icon icon-destroy'
-              onClick={onDeleteItem}
-            />
-          </div>
-        }
-      </>
-    )
-  }
+            <span className='created description'>{`created ${create}`}</span>
+          </label>
+          <button
+            aria-label='Edit'
+            type='button'
+            className='icon icon-edit'
+            onClick={onEditingItem}
+          />
+          <button
+            aria-label='Delete'
+            type='button'
+            className='icon icon-destroy'
+            onClick={onDeleteItem}
+          />
+        </div>
+      }
+    </>
+  )
 }
+
+export default Task
 
 Task.defaultProps = {
   taskData: {},

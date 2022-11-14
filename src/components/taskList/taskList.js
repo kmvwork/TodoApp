@@ -12,14 +12,13 @@ function TaskList({
                     onChangeItem,
                     onKeyPressHandler,
                     onChangeTime,
-                    // editTimerMean,
                     onHandleClickOutside,
                     onSetTime
                   }) {
   const p = <p className='noItemText'>No item</p>
 
   const elements = taskData.map((item) => {
-    const { status, id, edit, start, endDate, ...itemProps } = item
+    const {status, id, edit, start, endDate, ...itemProps} = item
     return (
 
       <li key={id} className={status}>
@@ -31,7 +30,6 @@ function TaskList({
           onChangeItem={onChangeItem}
           onKeyPressHandler={onKeyPressHandler}
           onChangeTime={onChangeTime}
-          // editTimerMean={editTimerMean}
           onHandleClickOutside={onHandleClickOutside}
           onSetTime={onSetTime}
           endDate={endDate}

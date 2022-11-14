@@ -1,41 +1,38 @@
-import React, { Component } from 'react'
+import React, {useEffect, useRef} from 'react'
 import './editTask.css'
 
-export default class EditTask extends Component {
-  myRef = React.createRef()
+const EditTask = ({description, onChangeItem, onKeyPressHandler, id, onHandleClickOutside}) => {
+  const myRef = useRef()
 
-  componentDidMount() {
-    this.focusTextInput()
-    document.addEventListener('mousedown', this.handleClickOutside)
+  useEffect(() => {
+    focusTextInput()
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [])
 
+  const focusTextInput = () => {
+    myRef.current.focus()
+    myRef.current.select()
   }
 
-  componentWillUnmount() {
-    document.removeEventListener('mousedown', this.handleClickOutside)
-  }
-
-  focusTextInput = () => {
-    this.myRef.current.focus()
-    this.myRef.current.select()
-  }
-
-  handleClickOutside = (event) => {
-    if (this.myRef.current && !this.myRef.current.contains(event.target)) {
-      this.props.onHandleClickOutside(this.props.id)
+  const handleClickOutside = (event) => {
+    if (myRef.current && !myRef.current.contains(event.target)) {
+      onHandleClickOutside(id)
     }
   }
 
-  render() {
-    const { description, onChangeItem, onKeyPressHandler, id } = this.props
-    return (
-      <input
-        ref={this.myRef}
-        type='text'
-        className='edit'
-        value={description}
-        onChange={(event) => onChangeItem(id, event)}
-        onKeyDown={(event) => onKeyPressHandler(id, event)}
-      />
-    )
-  }
+  return (
+    <input
+      ref={myRef}
+      type='text'
+      className='edit'
+      value={description}
+      onChange={(event) => onChangeItem(id, event)}
+      onKeyDown={(event) => onKeyPressHandler(id, event)}
+    />
+  )
 }
+
+export default EditTask
